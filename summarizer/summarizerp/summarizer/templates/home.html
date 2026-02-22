@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Topic Summarizer</title>
+</head>
+<body>
+    <h1>Multilingual AI Topic Summarizer</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <textarea name="text" rows="10" cols="80" placeholder="Paste your text here..."></textarea><br><br>
+        <button type="submit">Summarize</button>
+    </form>
+
+    {% if result %}
+        {% if result.error %}
+            <p style="color:red;">{{ result.error }}</p>
+        {% else %}
+            <h3>Detected Language: {{ result.language }}</h3>
+
+            <h2>Generated Summary:</h2>
+            <p style="background:#eef; padding:10px;">{{ result.summary }}</p>
+
+            <h3>Sentences:</h3>
+            <ul>
+                {% for s in result.sentences %}
+                    <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Tokens:</h3>
+            <p>{{ result.tokens }}</p>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
