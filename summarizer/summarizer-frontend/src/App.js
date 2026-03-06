@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 
+const API_BASE_URL = (process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
+
 const Index = () => {
   const [text, setText] = useState("");
   const [summary, setSummary] = useState("");
@@ -26,7 +28,7 @@ const Index = () => {
       }
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/summarize/",
+        `${API_BASE_URL}/api/summarize/`,
         formData,
         {
           headers: {
@@ -35,15 +37,27 @@ const Index = () => {
         }
       );
 
-      setSummary(response.data.summary || "");
-      setSimple(response.data.simple_explanation || "");
-      setBullets(response.data.bullets || []);
-      setKeywords(response.data.keywords || []);
-      setSentiment(response.data.sentiment || "");
+      const payload = response.data;
+      const data = payload?.ok ? payload.data : payload;
+      if (payload?.ok === false) {
+        const msg = payload?.error?.message || "Request failed";
+        alert(msg);
+        return;
+      }
+
+      setSummary(data?.summary || "");
+      setSimple(data?.simple_explanation || "");
+      setBullets(data?.bullets || []);
+      setKeywords(data?.keywords || []);
+      setSentiment(data?.sentiment || "");
 
     } catch (error) {
       console.error(error);
-      alert("Error connecting to backend");
+      const msg =
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.error ||
+        "Error connecting to backend";
+      alert(msg);
     } finally {
       setIsLoading(false);
     }
